@@ -15,24 +15,24 @@ public class Main {
      * @param args main arguments
      */
     public static void main(String[] args) {
-        boolean t; String code;
+        boolean IsCorrect; String text;
         Scanner in = new Scanner(System.in);
         do {
             System.out.print("Enter the expression: ");
-            String str = in.nextLine();
+            String EnteredExpression = in.nextLine();
 
-            Calculator exp = new Calculator(str);
-            t = exp.calculate();
+            Calculator Expression = new Calculator(EnteredExpression);
+            IsCorrect = Expression.Calculate();
 
-            if (!t) {
-                System.out.print("The expression is incorrect.");
+            if (!IsCorrect) {
+                System.out.print("The expression is incorrect");
             } else {
-                System.out.print(str + " = ");
-                System.out.println(exp);
+                System.out.print(EnteredExpression + " = ");
+                System.out.println(Expression);
             }
-            System.out.println("Press 'e' to exit.");
-            code = in.nextLine();
+            System.out.println("\nPress 'e' to exit");
+            text = in.nextLine();
         }
-        while (!Objects.equals(code, "e"));
+        while (!Objects.equals(text, "e"));
     }
 }
