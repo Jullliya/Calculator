@@ -53,14 +53,21 @@ public class Calculator {
                         case '+': case '-': case '*': case '/': {
                             if(index == 0 || index == Expression.length() - 1) return false;
                         else
-                            if (Expression.charAt(index+1) == '+' || Expression.charAt(index+1) == '-' || Expression.charAt(index+1) == '*' || Expression.charAt(index+1) == '/' || Expression.charAt(index+1) == ')')
+                            if (Expression.charAt(index+1) == '+' ||
+                                    Expression.charAt(index+1) == '-' ||
+                                    Expression.charAt(index+1) == '*' ||
+                                    Expression.charAt(index+1) == '/' ||
+                                    Expression.charAt(index+1) == ')')
                             return false;
                             break;
                         }
 
                         case '(': {
                             bracket++;
-                            if (Expression.charAt(index+1) == '+' || Expression.charAt(index+1) == '-' || Expression.charAt(index+1) == '*' || Expression.charAt(index+1) == '/' ||  Expression.charAt(index+1) == ')')
+                            if (Expression.charAt(index+1) == '+' ||
+                                    Expression.charAt(index+1) == '*' ||
+                                    Expression.charAt(index+1) == '/' ||
+                                    Expression.charAt(index+1) == ')')
                                 return false;
                             else if (index == Expression.length() - 1) return false;
                             break;
@@ -69,38 +76,26 @@ public class Calculator {
                         case ')': {
                             bracket--;
                             if (index == 0) return false;
-                            else if (Expression.charAt(index-1) == '+' || Expression.charAt(index-1) == '-' || Expression.charAt(index-1) == '*' || Expression.charAt(index-1) == '/' || Expression.charAt(index-1) == '(' )
+                            else if (Expression.charAt(index-1) == '+' ||
+                                    Expression.charAt(index-1) == '-' ||
+                                    Expression.charAt(index-1) == '*' ||
+                                    Expression.charAt(index-1) == '/' ||
+                                    Expression.charAt(index-1) == '(' )
                                 return false;
                             break;
                         }
 
-                        case 's': {
+                        case '.': {
                             if(index == Expression.length()-1) return false;
-                            else if (Expression.charAt(index+1) != 'i' && Expression.charAt(index+2) != 'n' && Expression.charAt(index+3) != '(')
-                                return false;
-                            else if (Expression.charAt(index+1) != 'q' && Expression.charAt(index+2) != 'r' && Expression.charAt(index+3) != 't' && Expression.charAt(index+4) != '(')
-                                return false;
-                            break;
-                        }
-
-                        case 'c': {
-                            if(index == Expression.length()-1) return false;
-                            else if (Expression.charAt(index+1) != 'o' && Expression.charAt(index+2) != 's' && Expression.charAt(index+3) != '(')
-                                return false;
-                            else if (Expression.charAt(index+2) != 't' && Expression.charAt(index+3) != '(')
-                                return false;
-                            break;
-                        }
-
-                        case 't': {
-                            if(index == Expression.length()-1) return false;
-                            else if (Expression.charAt(index+1) != 'a' && Expression.charAt(index+2) != 'n' && Expression.charAt(index+2) != '(')
+                            else if (Expression.charAt(index+1) < '0' ||
+                                    Expression.charAt(index+1) > '9')
                                 return false;
                             break;
                         }
 
                         default:
-                            if (Expression.charAt(index) >= '0' && Expression.charAt(index) <= '9') {
+                            if (Expression.charAt(index) >= '0' &&
+                                    Expression.charAt(index) <= '9') {
                                 if (index != 0)
                                     if (Expression.charAt(index-1) == ')' )
                                         return false;
@@ -138,46 +133,55 @@ public class Calculator {
      * A method that overwrites an expression into a postfix form.
      * @return True if it was possible to write, otherwise false.
      */
-    private boolean PostfixNotation() {
+    private boolean PostfixForm() {
 
         if (!Correctness() || Expression.isEmpty())
             return false;
 
         else {
-            Stack<Character> SymbolStack = new Stack<Character>();
-            StringBuilder NewExprassion = new StringBuilder();
+            Stack<Character> SymbolExpression = new Stack<Character>();
+            StringBuilder PostfixExpression = new StringBuilder();
 
             for (int index = 0; index < Expression.length(); index++) {
-                int typeoper = Priority(Expression.charAt(index));
+                int priority = Priority(Expression.charAt(index));
 
-                if (typeoper == 0) NewExprassion.append(Expression.charAt(index));
+                if (priority == 0) PostfixExpression.append(Expression.charAt(index));
 
-                else if (typeoper == 1) SymbolStack.push(Expression.charAt(index));
+                else if (priority == 1) SymbolExpression.push(Expression.charAt(index));
 
-                else if (typeoper > 1) {
-                    NewExprassion.append(' ');
+                else if (Expression.charAt(index) == '-' && Expression.charAt(index-1) == '(') {
 
-                    while (!SymbolStack.empty()) {
-                        if (Priority(SymbolStack.peek()) >= typeoper)
-                            NewExprassion.append(SymbolStack.pop());
+                    PostfixExpression.append(Expression.charAt(index));
+                }
+
+                else if (priority > 1) {
+                    PostfixExpression.append(' ');
+
+                    while (!SymbolExpression.empty()) {
+                        if (Priority(SymbolExpression.peek()) >= priority)
+                            PostfixExpression.append(SymbolExpression.pop());
                         else break;
                     }
 
-                    SymbolStack.push(Expression.charAt(index));
+                    SymbolExpression.push(Expression.charAt(index));
                 }
 
-                else if (typeoper == -1) {
-                    NewExprassion.append(' ');
+                else if (priority == -1) {
+                    PostfixExpression.append(' ');
 
-                    while (Priority(SymbolStack.peek()) != 1)
-                        NewExprassion.append(SymbolStack.pop());
+                    while (Priority(SymbolExpression.peek()) != 1)
+                        PostfixExpression.append(SymbolExpression.pop());
 
-                    SymbolStack.pop();
+                    SymbolExpression.pop();
                 }
             }
 
-            while (!SymbolStack.empty()) NewExprassion.append(SymbolStack.pop());
-            Expression = NewExprassion.toString();
+            while (!SymbolExpression.empty()) {
+                PostfixExpression.append(' ');
+                PostfixExpression.append(SymbolExpression.pop());
+            }
+            Expression = PostfixExpression.toString();
+            System.out.println(Expression);
             return true;
         }
     }
@@ -188,47 +192,58 @@ public class Calculator {
      */
     public boolean Calculate() {
 
-        boolean t = PostfixNotation();
-        if (!t) return false;
+        boolean IsPostfix = PostfixForm();
+        if (!IsPostfix) return false;
         else {
 
-            StringBuilder res = new StringBuilder();
-            Stack<Double> st = new Stack<Double>();
+            StringBuilder Numbers = new StringBuilder();
+            Stack<Double> Calculations = new Stack<Double>();
 
             for (int index = 0; index < Expression.length(); index++) {
 
                 if (Expression.charAt(index) == ' ') continue;
 
-                if (Priority(Expression.charAt(index)) == 0){
-
+                if (Expression.charAt(index) == '-' && Priority(Expression.charAt(index+1)) == 0){
+                    
                     while (Expression.charAt(index) != ' ' && Priority(Expression.charAt(index)) == 0) {
-                        res.append(Expression.charAt(index++));
+                        Numbers.append(Expression.charAt(index++));
                         if (index == Expression.length()) break;
                     }
 
-                    st.push(Double.parseDouble(res.toString()));
-                    res = new StringBuilder();
+                    Calculations.push(Double.parseDouble(Numbers.toString()));
+                    Numbers = new StringBuilder();
+                }
+
+                if (Priority(Expression.charAt(index)) == 0){
+
+                    while (Expression.charAt(index) != ' ' && Priority(Expression.charAt(index)) == 0) {
+                        Numbers.append(Expression.charAt(index++));
+                        if (index == Expression.length()) break;
+                    }
+
+                    Calculations.push(Double.parseDouble(Numbers.toString()));
+                    Numbers = new StringBuilder();
                 }
 
                 if (Priority(Expression.charAt(index)) > 1) {
 
-                    double num1 = st.pop();
-                    double num2 = st.pop();
+                    double num1 = Calculations.pop();
+                    double num2 = Calculations.pop();
 
                     if (Expression.charAt(index) == '+')
-                        st.push(num2 + num1);
+                        Calculations.push(num2 + num1);
 
                     if (Expression.charAt(index) == '-')
-                        st.push(num2 - num1);
+                        Calculations.push(num2 - num1);
 
                     if (Expression.charAt(index) == '*')
-                        st.push(num2 * num1);
+                        Calculations.push(num2 * num1);
 
                     if (Expression.charAt(index) == '/')
-                        st.push(num2 / num1);
+                        Calculations.push(num2 / num1);
                 }
             }
-            Expression = Double.toString(st.pop());
+            Expression = Double.toString(Calculations.pop());
             return true;
         }
     }
